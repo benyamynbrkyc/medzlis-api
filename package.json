@@ -1,0 +1,21 @@
+{
+  "name": "medzlis-backend",
+  "version": "1.0.0",
+  "description": "Backend REST API for the Medzlis Donation Manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js"
+  },
+  "author": "Benjamin Brkic | github.com/benyamynbrkyc",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.15.0",
+    "mongoose": "^5.11.8",
+    "nodemon": "^2.0.6"
+  }
+}
