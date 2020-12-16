@@ -1,9 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const sampleRouter = require('./routes/sample');
+require('dotenv').config();
 
-const CONNECTION_STRING =
-  'mongodb+srv://benjaminbrkic:benjaminbrkic@medzlis-cluster.ek03h.mongodb.net/medzlis-db?retryWrites=true&w=majority';
+const CONNECTION_STRING = process.env.MONGODB_ATLAS_CONNECTION_STRING;
 mongoose.connect(CONNECTION_STRING, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -17,24 +18,11 @@ db.once('open', () => {
   console.log('Successfully connected to Atlas');
 });
 
-const sampleRouter = require('./routes/sample');
-
 const app = express();
-app.use('/sample', sampleRouter);
 app.use(cors());
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  );
-  next();
-});
+
+app.use('/sample', sampleRouter);
 
 const PORT = 3000 | process.env.PORT;
-
-app.get('/', (req, res) => {
-  res.send({ message: 'Hello' });
-});
 
 app.listen(PORT, console.log('Server listening on port: ' + PORT));
