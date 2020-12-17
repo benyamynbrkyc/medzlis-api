@@ -6,7 +6,7 @@ const Dzemat = require('../db/models/Dzemat');
 router.get('/dzemati', (req, res) => {
   Dzemat.find((err, dzemati) => {
     if (err) return console.error(err);
-    return res.send(dzemati);
+    return res.send({ dzemati, message: 'You got your message' });
   });
 });
 
