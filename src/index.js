@@ -1,8 +1,10 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const sampleRouter = require('./routes/sample');
+const dzematiRouter = require('./routes/dzemati');
 require('dotenv').config();
+const admin = require('firebase-admin');
 
 const CONNECTION_STRING = process.env.MONGODB_ATLAS_CONNECTION_STRING;
 mongoose.connect(CONNECTION_STRING, {
@@ -20,8 +22,17 @@ db.once('open', () => {
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-app.use('/sample', sampleRouter);
+const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://medzlis-maglaj.firebaseio.com',
+});
+
+app.use('/dzemati', dzematiRouter);
 
 const PORT = 3000 | process.env.PORT;
 
