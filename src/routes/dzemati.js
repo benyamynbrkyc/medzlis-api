@@ -25,6 +25,7 @@ router.get('/:actionDzematName', async (req, res) => {
 
 router.post('/:actionDzematName/newAction', (req, res) => {
   const actionData = validateActionObject(req.body);
+  actionData.dzemat = req.params.actionDzematName;
   const id = mongoose.Types.ObjectId();
   actionData._id = id.toHexString();
 
@@ -49,32 +50,6 @@ router.post('/:actionDzematName/newAction', (req, res) => {
   );
 
   db.collection('actions').insertOne(actionData);
-});
-
-router.delete('/:actionDzematName/:actionName/deleteAction', (req, res) => {
-  const actionToDelete = req.params.actionName;
-
-  Dzemat.findOneAndUpdate(
-    { name: req.params.actionDzematName },
-    {
-      $pull: {
-        actions: {
-          name: actionToDelete,
-        },
-      },
-    },
-    (err, _) => {
-      if (err) {
-        console.error(err);
-        return res.send({ error: 'Brisanje akcije nije uspjelo.' });
-      }
-
-      return res.send({
-        actionToDelete,
-        message: 'Successfully deleted action',
-      });
-    }
-  );
 });
 
 module.exports = router;

@@ -1,16 +1,16 @@
 const validateActionObject = (actionDataObject) => {
   const { name, dzemat, price, desc, imgURL } = actionDataObject;
 
-  const noSpaceName = name.trim().replaceAll(' ', '_');
-  const noSpaceDzemat = dzemat.trim().replaceAll(' ', '_');
+  const dbName = name.trim().replaceAll(' ', '___').replaceAll('/', '---');
+  const dbDzemat = dzemat.trim().replaceAll(' ', '___').replaceAll('/', '---');
   const priceToNum = Number(price);
-  const descTrimmed = desc.trim();
+  const dbDesc = desc.trim();
 
   return {
-    name: noSpaceName,
-    dzemat: noSpaceDzemat,
+    name: dbName,
+    dzemat: dbDzemat,
     price: priceToNum,
-    desc: descTrimmed,
+    desc: dbDesc,
     imgURL,
   };
 };
