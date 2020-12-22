@@ -4,6 +4,7 @@ const router = express.Router();
 const Action = require('../models/action');
 const Dzemat = require('../models/dzematmodel');
 const mongoose = require('mongoose');
+const { bucket } = require('../firebase/bucket');
 
 const db = mongoose.connection;
 
@@ -63,6 +64,10 @@ router.delete('/:actionDzematName/deleteAllActions', async (req, res) => {
     .catch((err) => {
       return res.send(err);
     });
+});
+
+router.post('/:actionDzematName/uploadPic', async (req, res) => {
+  res.send(req.body);
 });
 
 module.exports = router;
