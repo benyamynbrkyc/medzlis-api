@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const Dzemat = require('../models/dzemat');
-// const Action = require('../models/action');
 const admin = require('firebase-admin');
 const mongoose = require('mongoose');
-
 const auth = admin.auth();
 const db = mongoose.connection;
 
+// models
+const Dzemat = require('../models/dzematmodel');
+const Admin = require('../models/admin');
+
 // validation
 const { validateActionObject } = require('../validation/validateActionObject');
+const { validateDzematObject } = require('../validation/validateDzematObject');
 
 router.get('/', async (req, res) => {
   const dzemati = await Dzemat.find().lean();
@@ -23,33 +25,48 @@ router.get('/:actionDzematName', async (req, res) => {
   return res.send(dzemat);
 });
 
-router.post('/:actionDzematName/newAction', (req, res) => {
+router.post('/newDzemat', async (req, res) => {
+  const data = validateDzematObject(req.body);
+
+  const dzemat = new Dzemat(data.dzemat);
+  const admin = new Admin(data.admin);
+
+  Promise.all([await dzemat.save(), await admin.save()])
+    .then((values) => {
+      res.send({
+        message: 'Successfully added dzemat and admin',
+        values,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.send({ error: 'Spremanje dzemata i admina nije uspjelo' });
+    });
+});
+
+router.post('/:actionDzematName/newAction', async (req, res) => {
   const actionData = validateActionObject(req.body);
   actionData.dzemat = req.params.actionDzematName;
   const id = mongoose.Types.ObjectId();
   actionData._id = id.toHexString();
 
-  Dzemat.findOneAndUpdate(
-    { name: req.params.actionDzematName },
-    {
-      $push: {
-        actions: actionData,
-      },
-    },
-    (err, dzemat) => {
-      if (err) {
-        console.error(err);
-        return res.send({ error: 'Spašavanje podataka nije uspjelo' });
+  Promise.all([
+    Dzemat.findOneAndUpdate(
+      { name: req.params.actionDzematName },
+      {
+        $push: {
+          actions: actionData,
+        },
       }
-
-      return res.send({
-        actionData,
-        message: 'Successfully pushed new action',
-      });
-    }
-  );
-
-  db.collection('actions').insertOne(actionData);
+    ),
+    await db.collection('actions').insertOne(actionData),
+  ])
+    .then((data) => {
+      return res.send(data);
+    })
+    .catch((err) => {
+      res.send(error);
+    });
 });
 
 module.exports = router;

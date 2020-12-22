@@ -5,6 +5,7 @@ const DzematSchema = new mongoose.Schema(
     name: String,
     admin: String,
     actions: Array,
+    displayName: String,
   },
   {
     collection: 'dzemati',
