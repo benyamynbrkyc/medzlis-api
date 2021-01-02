@@ -1,4 +1,5 @@
 const validateActionObject = (actionDataObject) => {
+  actionDataObject.displayName = actionDataObject.name;
   actionDataObject.name
     .trim()
     .replaceAll(' ', '___')

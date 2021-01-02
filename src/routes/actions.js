@@ -42,8 +42,7 @@ router.delete('/:actionDzematName/deleteAction/:actionID', async (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
-      return res.send({ error: 'Brisanje akcije nije uspjelo.' });
+      return res.send({ err, message: 'Brisanje akcije nije uspjelo.' });
     });
 });
 
@@ -127,86 +126,80 @@ router.post('/:actionDzematName/newAction', async (req, res) => {
 });
 
 router.patch('/:dzemat/:actionID', async (req, res) => {
-  console.log(req.body);
   const actionData = validateActionObject(req.body);
 
   const firebaseImgDataURI = actionData.dataURI;
-  let imgURL;
 
-  try {
-    const base64Text = firebaseImgDataURI.split(';base64,').pop();
-    const imageBuffer = Buffer.from(base64Text, 'base64');
+  if (firebaseImgDataURI !== 'not changed') {
+    try {
+      let imgURL;
 
-    const fileName = `action~~${actionData.dzemat}~~${actionData.name}`;
-    const imageURL =
-      'https://firebasestorage.googleapis.com/v0/b/medzlis-maglaj.appspot.com/' +
-      fileName;
+      const base64Text = firebaseImgDataURI.split(';base64,').pop();
+      const imageBuffer = Buffer.from(base64Text, 'base64');
 
-    const file = bucket.file(fileName);
+      const fileName = `action~~${actionData.dzemat}~~${actionData.name}`;
+      const imageURL =
+        'https://firebasestorage.googleapis.com/v0/b/medzlis-maglaj.appspot.com/' +
+        fileName;
 
-    await file.save(imageBuffer, {
-      public: true,
-      gzip: true,
-      predefinedAcl: 'publicRead',
-      metadata: {
-        cacheControl: 'public, max-age=31536000'
-      }
-    });
-    const metadata = await file.getMetadata();
+      const file = bucket.file(fileName);
 
-    imgURL = metadata[0].mediaLink;
-  } catch (error) {
-    return res.send(error);
+      await file.save(imageBuffer, {
+        public: true,
+        gzip: true,
+        predefinedAcl: 'publicRead',
+        metadata: {
+          cacheControl: 'public, max-age=31536000'
+        }
+      });
+      const metadata = await file.getMetadata();
+
+      imgURL = metadata[0].mediaLink;
+
+      actionData.imgURL = imgURL;
+    } catch (err) {
+      return res.send({ err, message: 'Error saving to firebase storage' });
+    }
   }
 
-  actionData.imgURL = imgURL;
   delete actionData.dataURI;
 
-  const updatedDzematDoc = await Dzemat.updateOne(
-    { 'actions._id': actionData._id },
-    {
-      $set: {
-        'actions.$.imgURL': actionData.imgURL,
-        'actions.$.price': actionData.price,
-        'actions.$.desc': actionData.desc,
-        'actions.$.name': actionData.name,
-        'actions.$.displayName': actionData.displayName,
-        'actions.$.dzemat': actionData.dzemat
+  try {
+    await Dzemat.updateOne(
+      { 'actions._id': actionData._id },
+      {
+        $set: {
+          'actions.$.imgURL': actionData.imgURL,
+          'actions.$.price': actionData.price,
+          'actions.$.desc': actionData.desc,
+          'actions.$.name': actionData.name,
+          'actions.$.displayName': actionData.displayName,
+          'actions.$.dzemat': actionData.dzemat
+        }
+      },
+      {
+        new: true
       }
-    },
-    {
-      new: true
-    }
-  );
-  console.log(updatedDzematDoc);
+    );
 
-  await db.collection('actions').findOneAndUpdate(
-    { _id: actionData._id },
-    {
-      $set: {
-        imgURL: actionData.imgURL,
-        price: actionData.price,
-        desc: actionData.desc,
-        name: actionData.name,
-        displayName: actionData.displayName,
-        dzemat: actionData.dzemat
+    await db.collection('actions').findOneAndUpdate(
+      { _id: actionData._id },
+      {
+        $set: {
+          imgURL: actionData.imgURL,
+          price: actionData.price,
+          desc: actionData.desc,
+          name: actionData.name,
+          displayName: actionData.displayName,
+          dzemat: actionData.dzemat
+        }
       }
-    }
-  );
+    );
 
-  // .then((doc) => {
-  //   console.log(doc);
-  //   doc['imgURL'] = actionData.imgURL;
-  //   doc['desc'] = actionData.desc;
-  //   doc['price'] = actionData.price;
-  //   doc['name'] = actionData.name;
-  //   doc['displayName'] = actionData.displayName;
-  //   doc['dzemat'] = actionData.dzemat;
-  //   console.log('saved');
-  // })
-  // .catch((err) => {
-  //   console.log(err);
-  // });
+    return res.send({ message: 'Successfully saved to db', actionData });
+  } catch (err) {
+    return res.send({ err, message: 'Error saving to db' });
+  }
 });
 
 module.exports = router;
