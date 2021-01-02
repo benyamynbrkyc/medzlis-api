@@ -9,6 +9,7 @@ const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://medzlis-maglaj.firebaseio.com',
+  storageBucket: 'medzlis-maglaj.appspot.com',
 });
 
 // routes

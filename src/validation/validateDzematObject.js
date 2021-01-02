@@ -21,6 +21,7 @@ const validateDzematObject = (dzematDataObject) => {
     .replaceAll('Ć', 'C')
     .replaceAll('Š', 'S')
     .replaceAll('Đ', 'Dj');
+
   const dbAdminName = adminName
     .trim()
     .replaceAll(' ', '___')

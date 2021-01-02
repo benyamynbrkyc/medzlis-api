@@ -10,7 +10,6 @@ const Dzemat = require('../models/dzematmodel');
 const Admin = require('../models/admin');
 
 // validation
-const { validateActionObject } = require('../validation/validateActionObject');
 const { validateDzematObject } = require('../validation/validateDzematObject');
 
 router.get('/', async (req, res) => {
@@ -41,31 +40,6 @@ router.post('/newDzemat', async (req, res) => {
     .catch((err) => {
       console.error(err);
       return res.send({ error: 'Spremanje dzemata i admina nije uspjelo' });
-    });
-});
-
-router.post('/:actionDzematName/newAction', async (req, res) => {
-  const actionData = validateActionObject(req.body);
-  actionData.dzemat = req.params.actionDzematName;
-  const id = mongoose.Types.ObjectId();
-  actionData._id = id.toHexString();
-
-  Promise.all([
-    Dzemat.findOneAndUpdate(
-      { name: req.params.actionDzematName },
-      {
-        $push: {
-          actions: actionData,
-        },
-      }
-    ),
-    await db.collection('actions').insertOne(actionData),
-  ])
-    .then((data) => {
-      return res.send(data);
-    })
-    .catch((err) => {
-      res.send(error);
     });
 });
 
