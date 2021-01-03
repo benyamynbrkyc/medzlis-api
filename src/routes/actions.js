@@ -18,6 +18,18 @@ router.get('/:actionDzematName', async (req, res) => {
   return res.send(actionsInDzemat);
 });
 
+router.get('/:actionId/getAction', async (req, res) => {
+  console.log(req.params.actionId);
+  try {
+    const action = await db
+      .collection('actions')
+      .findOne({ _id: req.params.actionId });
+    return res.send({ ...action });
+  } catch (err) {
+    return res.send({ err, message: 'Could not find action' });
+  }
+});
+
 router.delete('/:actionDzematName/deleteAction/:actionID', async (req, res) => {
   const actionID = req.params.actionID;
   const dzemat = req.params.actionDzematName;
@@ -101,6 +113,9 @@ router.post('/:actionDzematName/newAction', async (req, res) => {
   }
 
   actionData.imgURL = imgURL;
+  actionData.donators = [];
+  actionData.totalDonated = 0;
+  actionData.closed = false;
   delete actionData.dataURI;
 
   const id = mongoose.Types.ObjectId();
@@ -199,6 +214,36 @@ router.patch('/:dzemat/:actionID', async (req, res) => {
     return res.send({ message: 'Successfully saved to db', actionData });
   } catch (err) {
     return res.send({ err, message: 'Error saving to db' });
+  }
+});
+
+router.patch('/update/donationData/:actionId/new', async (req, res) => {
+  const changes = req.body;
+  console.log(req.body);
+
+  try {
+    await Dzemat.updateOne(
+      { 'actions._id': req.params.actionId },
+      {
+        $set: {
+          'actions.$.donators': changes.donators,
+          'actions.$.totalDonated': changes.totalDonated
+        }
+      },
+      { new: true }
+    );
+    await db.collection('actions').findOneAndUpdate(
+      { _id: req.params.actionId },
+      {
+        $set: {
+          donators: changes.donators,
+          totalDonated: changes.totalDonated
+        }
+      }
+    );
+    return res.send({ message: 'Successfully updated donation data' });
+  } catch (err) {
+    return res.send({ err, message: 'Could not update donation data' });
   }
 });
 

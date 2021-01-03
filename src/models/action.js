@@ -9,12 +9,11 @@ const ActionSchema = new mongoose.Schema(
     desc: String,
     imgURL: String,
     donators: Array,
-    dzematDisplayName: String,
     totalDonated: Number,
-    closed: Boolean,
+    closed: Boolean
   },
   {
-    collection: 'actions',
+    collection: 'actions'
   }
 );
 

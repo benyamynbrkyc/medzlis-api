@@ -9,19 +9,20 @@ const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://medzlis-maglaj.firebaseio.com',
-  storageBucket: 'medzlis-maglaj.appspot.com',
+  storageBucket: 'medzlis-maglaj.appspot.com'
 });
 
 // routes
 const dzematiRouter = require('./routes/dzemati');
 const actionsRouter = require('./routes/actions');
+const adminsRouter = require('./routes/admins');
 
 const CONNECTION_STRING = process.env.MONGODB_ATLAS_CONNECTION_STRING;
 mongoose.connect(CONNECTION_STRING, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
-  useFindAndModify: false,
+  useFindAndModify: false
 });
 
 const db = mongoose.connection;
@@ -34,9 +35,11 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(require('morgan')('dev'));
 
 app.use('/dzemati', dzematiRouter);
 app.use('/actions', actionsRouter);
+app.use('/admins', adminsRouter);
 
 const PORT = 3000 | process.env.PORT;
 
