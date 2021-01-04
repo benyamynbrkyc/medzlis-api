@@ -28,6 +28,7 @@ router.get('/:actionDzematName', async (req, res) => {
 
 router.post('/newDzemat', async (req, res) => {
   const data = validateDzematObject(req.body);
+  data.admin.uid = `${data.admin.email}-${data.admin.name}`;
   console.log(data);
 
   const dzemat = new Dzemat(data.dzemat);
@@ -37,7 +38,8 @@ router.post('/newDzemat', async (req, res) => {
     await auth.createUser({
       email: data.admin.email,
       password: data.admin.password,
-      displayName: data.admin.name
+      displayName: data.admin.name,
+      uid: `${data.admin.email}-${data.admin.name}`
     });
   } catch (err) {
     return res.send({ err, message: 'Could not create admin' });
