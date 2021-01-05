@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-// const cors = require('cors');
+const cors = require('cors');
 require('dotenv').config();
 
 const admin = require('firebase-admin');
@@ -32,14 +32,8 @@ db.once('open', () => {
 });
 
 const app = express();
-app.use((req, res, next) => {
-  res.append('Access-Control-Allow-Origin', '*');
-  res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
-  res.append('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-// app.use(cors());
-// app.options('*', cors());
+
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(require('morgan')('dev'));
