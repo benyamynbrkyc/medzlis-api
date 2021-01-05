@@ -1,10 +1,11 @@
 const validateDzematObject = (dzematDataObject) => {
+  console.log('validate dzemat\n', dzematDataObject);
   const {
     name,
     adminName,
     adminEmail,
     adminPass,
-    displayName,
+    displayName
   } = dzematDataObject;
 
   const dbName = name
@@ -33,17 +34,17 @@ const validateDzematObject = (dzematDataObject) => {
       name: dbName,
       admin: adminName,
       actions: [],
-      displayName,
+      displayName
     },
     admin: {
       name: dbAdminName,
       email: adminEmail.trim(),
       password: adminPass,
-      dzemat: dbName,
-    },
+      dzemat: dbName
+    }
   };
 };
 
 module.exports = {
-  validateDzematObject,
+  validateDzematObject
 };

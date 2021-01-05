@@ -27,6 +27,7 @@ router.get('/:actionDzematName', async (req, res) => {
 });
 
 router.post('/newDzemat', async (req, res) => {
+  console.log('validate dzemat', req.body);
   const data = validateDzematObject(req.body);
   data.admin.uid = `${data.admin.email}-${data.admin.name}`;
   console.log(data);
