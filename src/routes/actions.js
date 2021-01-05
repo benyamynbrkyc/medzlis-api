@@ -9,7 +9,7 @@ const { bucket, defaultBucketName } = require('../firebase/bucket');
 const db = mongoose.connection;
 
 // validation
-const { validateActionObject } = require('../validation/validateActionObject');
+// const { validateActionObject } = require('../validation/validateActionObject');
 
 router.get('/:actionDzematName', async (req, res) => {
   const actionsInDzemat = await Action.find({
@@ -81,7 +81,11 @@ router.delete('/:actionDzematName/deleteAllActions', async (req, res) => {
 });
 
 router.post('/:actionDzematName/newAction', async (req, res) => {
-  const actionData = validateActionObject(req.body);
+  console.log('---req.body---\n');
+  console.log(req.body);
+  const actionData = req.body;
+  console.log('---actionData from req.body---\n');
+  console.log(actionData);
 
   const firebaseImgDataURI = actionData.dataURI;
   let imgURL;
@@ -141,7 +145,8 @@ router.post('/:actionDzematName/newAction', async (req, res) => {
 });
 
 router.patch('/:dzemat/:actionID', async (req, res) => {
-  const actionData = validateActionObject(req.body);
+  // const actionData = validateActionObject(req.body);
+  const actionData = req.body;
 
   const firebaseImgDataURI = actionData.dataURI;
 
