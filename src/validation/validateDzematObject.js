@@ -1,5 +1,4 @@
 const validateDzematObject = (dzematDataObject) => {
-  console.log('validate dzemat\n', dzematDataObject);
   const {
     name,
     adminName,

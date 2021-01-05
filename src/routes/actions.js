@@ -81,7 +81,6 @@ router.delete('/:actionDzematName/deleteAllActions', async (req, res) => {
 });
 
 router.post('/:actionDzematName/newAction', async (req, res) => {
-  console.log(req.body);
   const actionData = validateActionObject(req.body);
 
   const firebaseImgDataURI = actionData.dataURI;

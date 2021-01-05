@@ -1,8 +1,6 @@
 const validateActionObject = (actionDataObject) => {
-  console.log('actionDataObject\n', actionDataObject);
   actionDataObject.displayName = actionDataObject.name;
-  console.log(actionDataObject.name);
-  actionDataObject.name
+  actionDataObject.name = actionDataObject.name
     .trim()
     .replaceAll(' ', '___')
     .replaceAll('/', '---')
@@ -16,7 +14,7 @@ const validateActionObject = (actionDataObject) => {
     .replaceAll('Ć', 'C')
     .replaceAll('Š', 'S')
     .replaceAll('Đ', 'Dj');
-  actionDataObject.dzemat
+  actionDataObject.dzemat = actionDataObject.dzemat
     .trim()
     .replaceAll(' ', '___')
     .replaceAll('/', '---')
@@ -31,7 +29,7 @@ const validateActionObject = (actionDataObject) => {
     .replaceAll('Š', 'S')
     .replaceAll('Đ', 'Dj');
   actionDataObject.price = Number(actionDataObject.price);
-  actionDataObject.desc.trim();
+  actionDataObject.desc = actionDataObject.desc.trim();
 
   return actionDataObject;
 };
