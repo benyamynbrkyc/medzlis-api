@@ -19,7 +19,6 @@ router.get('/:actionDzematName', async (req, res) => {
 });
 
 router.get('/:actionId/getAction', async (req, res) => {
-  console.log(req.params.actionId);
   try {
     const action = await db
       .collection('actions')
@@ -81,11 +80,7 @@ router.delete('/:actionDzematName/deleteAllActions', async (req, res) => {
 });
 
 router.post('/:actionDzematName/newAction', async (req, res) => {
-  console.log('---req.body---\n');
-  console.log(req.body);
   const actionData = req.body;
-  console.log('---actionData from req.body---\n');
-  console.log(actionData);
 
   const firebaseImgDataURI = actionData.dataURI;
   let imgURL;
@@ -224,7 +219,6 @@ router.patch('/:dzemat/:actionID', async (req, res) => {
 
 router.patch('/update/donationData/:actionId/new', async (req, res) => {
   const changes = req.body;
-  console.log(req.body);
 
   try {
     await Dzemat.updateOne(
@@ -251,5 +245,16 @@ router.patch('/update/donationData/:actionId/new', async (req, res) => {
     return res.send({ err, message: 'Could not update donation data' });
   }
 });
+
+// router.delete('/delete/donationData/:actionId/:donatorId', async (req, res) => {
+//   const actionId = req.params.actionId
+//   const donatorId = req.params.donatorId
+
+//   try {
+//     await Dzemat.updateOne({})
+//   } catch (err) {
+//     return res.send({err, message: 'Could not delete donator'})
+//   }
+// })
 
 module.exports = router;

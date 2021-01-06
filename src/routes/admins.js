@@ -30,20 +30,10 @@ router.post('/new/admin/:dzematName', async (req, res) => {
   const adminObj = req.body;
   const response = {};
   // try {
-  admin
-    .auth()
-    .createUser({
-      email: adminObj.email,
-      password: adminObj.password,
-      displayName: adminObj.displayName,
-      uid: `${adminObj.email}-${adminObj.displayName}`
-    })
-    .then(async (userRecord) => {
-      response.newAdmin = {
-        message: 'Successfully created new user:',
-        userRecord
-      };
+  try {
+    const user = await admin.auth().getUser(`${adminObj.email}`);
 
+    if (user.email) {
       response.mongoAdmin = await Admin.findOneAndUpdate(
         { dzemat: req.params.dzematName },
         {
@@ -60,44 +50,83 @@ router.post('/new/admin/:dzematName', async (req, res) => {
         }
       );
 
-      console.log(response);
       return res.send(response);
-    })
-    .catch((err) => {
-      if (
-        err.code == 'auth/email-already-exists' ||
-        err.code == 'auth/uid-already-exists'
-      ) {
-        admin
-          .auth()
-          .deleteUser(`${adminObj.email}-${adminObj.displayName}`)
-          .then(() => {
-            admin
-              .auth()
-              .createUser({
-                uid: `${adminObj.email}-${adminObj.displayName}`,
-                email: adminObj.email,
-                password: adminObj.password,
-                displayName: adminObj.displayName
-              })
-              .then((result) => {
-                return res.send({
-                  message: 'Successfully created user',
-                  result
+    }
+  } catch (err) {
+    admin
+      .auth()
+      .createUser({
+        email: adminObj.email,
+        password: adminObj.password,
+        displayName: adminObj.displayName,
+        uid: `${adminObj.email}`
+      })
+      .then(async (userRecord) => {
+        response.newAdmin = {
+          message: 'Successfully created new user:',
+          userRecord
+        };
+
+        response.mongoAdmin = await Admin.findOneAndUpdate(
+          { dzemat: req.params.dzematName },
+          {
+            name: adminObj.displayName,
+            password: adminObj.password,
+            email: adminObj.email
+          }
+        ).exec();
+
+        response.dzemat = await Dzemat.findOneAndUpdate(
+          { name: req.params.dzematName },
+          {
+            admin: adminObj.displayName
+          }
+        );
+
+        return res.send(response);
+      })
+      .catch((err) => {
+        if (
+          err.code == 'auth/email-already-exists' ||
+          err.code == 'auth/uid-already-exists'
+        ) {
+          admin
+            .auth()
+            .deleteUser(`${adminObj.email}`)
+            .then(() => {
+              admin
+                .auth()
+                .createUser({
+                  uid: `${adminObj.email}`,
+                  email: adminObj.email,
+                  password: adminObj.password,
+                  displayName: adminObj.displayName
+                })
+                .then((result) => {
+                  return res.send({
+                    message: 'Successfully created user',
+                    result
+                  });
+                })
+                .catch((err) => {
+                  return res.send({
+                    message: 'THIS: Error creating new user:',
+                    err
+                  });
                 });
-              })
-              .catch((err) => {
-                return res.send({
-                  message: 'THIS: Error creating new user:',
-                  err
-                });
+            })
+            .catch((err) => {
+              return res.send({
+                message: 'THIS: Error creating new user:',
+                err
               });
-          })
-          .catch((err) => {
-            return res.send({ message: 'THIS: Error creating new user:', err });
-          });
-      }
-    });
+            });
+        }
+      });
+  }
+
+  return;
+
   // } catch (err) {
   //   return res.send({ err, message: 'Could not create admin' });
   // }
